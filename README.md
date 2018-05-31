@@ -22,9 +22,8 @@ svr.register(tide)
    .start(wirelessIP);
 ```
 
+## Debug
+If the DASH_DEBUG environment variable is set to true, the server will show more verbose logging
+
 ### Notes
-
  - Only dash buttons that emit an ARP (not UDP) packet will be detected
-
-### TODO
- - Add a find button helper script?

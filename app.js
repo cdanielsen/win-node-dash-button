@@ -1,5 +1,6 @@
 const { Cap, decoders } = require("cap")
 const throttle = require("lodash.throttle")
+const DEBUG = process.env.DASH_DEBUG || false
 
 const Server = function() {
   var self = this
@@ -9,6 +10,12 @@ const Server = function() {
   this.dashButtons = {}
 
   this.register = function(button) {
+    if (DEBUG)
+      console.log(
+        `Registering a new dash button to listen for with mac address ${
+          button.mac
+        }`
+      )
     button.callback = throttle(button.callback, 5000)
     self.dashButtons[button.mac.toUpperCase()] = button
     return self
@@ -16,9 +23,12 @@ const Server = function() {
 
   this.packetReceived = function(nbytes, trunc) {
     const decodedPacket = decoders.Ethernet(buffer)
+    // ARP
     if (decodedPacket.info.type === 2054) {
-      // ARP
-      console.log("ARP request detected...")
+      if (DEBUG) {
+        console.log("ARP request detected...")
+        console.log(decodedPacket.info.srcmac.toUpperCase())
+      }
       // Check if incoming packet's MAC Address matches a registered button
       const button = self.dashButtons[decodedPacket.info.srcmac.toUpperCase()]
       if (button && button.callback) {
